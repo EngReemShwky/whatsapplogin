@@ -16,21 +16,23 @@ const io = new Server(server , {
   }
 });
 
-
-//const cors = require('cors'); // Import CORS middleware
-//app.use(cors());
-//app.use(express.json()); // Middleware to parse JSON bodies
+const MONGODB_URI  = "mongodb+srv://engreemshwky:KiuRySHT7TxULVFt@cluster0.fcrz0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+let store = "";
 
 const allSessions = {};
-//app.listen(port , ()=> {
-//  console.log("Server listening on the port");
-//});
-
-
 
 // When the client is ready, run this code (only once)
 const creatWhatsappSession = (id,stocket) => {
   console.log("Create First session");
+  mongoose.connect(process.env.MONGODB_URI).then(() => {
+    store = new MongoStore({ mongoose: mongoose });
+    const client = new Client({
+        authStrategy: new RemoteAuth({
+            store: store,
+            backupSyncIntervalMs: 300000
+        })
+    });
+  /*
   const client = new Client({
     puppeteer:{
      headless : true,
@@ -39,6 +41,7 @@ const creatWhatsappSession = (id,stocket) => {
       clientId : id,
     }),
   });
+  */
  
   client.on('ready', () => {
     console.log('Client is ready!');
@@ -81,6 +84,7 @@ const creatWhatsappSession = (id,stocket) => {
     }   
   });
   client.initialize();
+});
 }
 
 io.on('connection', (socket) => {
