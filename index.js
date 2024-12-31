@@ -22,6 +22,7 @@ const creatWhatsappSession = (id , stocket) => {
   const client = new Client({
     puppeteer:{
      headless : true,
+       args: [ '--no-sandbox', '--disable-gpu', ],
     },
     authStrategy:new LocalAuth({
       clientId : id,
