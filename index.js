@@ -1,8 +1,6 @@
 const express = require("express");
 const app = express();
 const { Client , LocalAuth} = require('whatsapp-web.js');
-const { MongoStore } = require('wwebjs-mongo');
-const mongoose = require('mongoose');
 
 const qrcode  = require('qrcode-terminal');
 const port    = 3001;
@@ -16,23 +14,11 @@ const io = new Server(server , {
   }
 });
 
-const MONGODB_URI  = "mongodb+srv://engreemshwky:KiuRySHT7TxULVFt@cluster0.fcrz0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-let store = "";
-
 const allSessions = {};
 
 // When the client is ready, run this code (only once)
-const creatWhatsappSession = (id,stocket) => {
+const creatWhatsappSession = (id , stocket) => {
   console.log("Create First session");
-  mongoose.connect(process.env.MONGODB_URI).then(() => {
-    store = new MongoStore({ mongoose: mongoose });
-    const client = new Client({
-        authStrategy: new RemoteAuth({
-            store: store,
-            backupSyncIntervalMs: 300000
-        })
-    });
-  /*
   const client = new Client({
     puppeteer:{
      headless : true,
@@ -41,7 +27,6 @@ const creatWhatsappSession = (id,stocket) => {
       clientId : id,
     }),
   });
-  */
  
   client.on('ready', () => {
     console.log('Client is ready!');
@@ -84,14 +69,76 @@ const creatWhatsappSession = (id,stocket) => {
     }   
   });
   client.initialize();
-});
+}
+
+const createSenddMessage = (id_connect , message , phone , stocket) => {
+  console.log(".........................................");
+  console.log("Create Send Message " + " Server cLient name = " + id_connect);
+  console.log( "message : " + message + " , phone : " + phone);
+  
+
+  const client = new Client({
+    puppeteer:{
+     headless : true,
+    },
+    authStrategy:new LocalAuth({
+      clientId : id_connect,
+    }),
+  });
+ 
+  client.on('ready', async() => {
+    console.log('Client is ready!');
+    io.emit("ready", { id_connect, message : "Client is ready" });
+  });
+
+  client.on("authenticated" , () => {
+    console.log("authenticated");
+  });
+ 
+  client.on("disconnected", (reason) => {
+    console.log("disconnected Client");
+  });
+
+  client.on('qr', (qr) => {
+    qrcode.generate(qr, { small: true });
+    console.log('QR RECEIVED = ', qr);
+    io.emit("qr", { qr });
+  });
+
+  client.on("message" , async () => {
+    console.log("ended message");
+  });
+  
+  client.on('ready', async() => {
+      try {
+        console.log('Client is ready! ، I Will Send');
+        var sendMessageTo = `Hi, Muscat ` + message; 
+        var chatId = phone.substring(1) + "@c.us"; 
+        client.sendMessage(chatId, sendMessageTo).then((r) => {
+           console.log(`Hi `+ chatId +` has been sendMessage to `+ sendMessageTo);
+           io.emit("sendstatus",  "message done send" );
+        });
+
+        console.log("END SEND........");
+        setTimeout( () => {
+          console.log("close destroy");
+          client.destroy();
+          //io.emit("closeclient",  "Close client is done" );
+        }, 10000);
+
+    } catch (error) {
+      console.log(error);
+    }   
+  });
+
+  
+  client.initialize();
 }
 
 io.on('connection', (socket) => {
   console.log("a user connected" , socket?.id);
 
   io.emit('Hello world');
-  //socket.on('event', data => { /* … */ });
   socket.on('disconnect', () => {
     console.log("user id disconnected");
   });
@@ -108,6 +155,17 @@ io.on('connection', (socket) => {
     //socket.emit("hello" , "Hello free server");
   });
   
+  socket.on("sendMessage", (data) => {
+    console.log("Connected to the server" , data);
+    const { id_connect  , message , phone } = data;
+    createSenddMessage(id_connect , message , phone , socket);
+  });
+
+  socket.on("closeClient", (data) => {
+    console.log("Connected to the server" , data);
+    const { id_connect } = data;
+    closeClientServer(id_connect , socket);
+  });
 });
 
 
