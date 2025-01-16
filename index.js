@@ -25,8 +25,6 @@ app.get("/api",(req , res) => {
   
 });
 
-//module.exports = app;
-
 const io = new Server(server , {
   cors:{
     origin: "*",
@@ -192,3 +190,5 @@ io.on('connection', (socket) => {
 server.listen(port , ()=> {
   console.log("Server listening on the port Reem : " + port);
 });
+
+module.exports = app;
