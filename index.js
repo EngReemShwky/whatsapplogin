@@ -16,13 +16,10 @@ app.get('/', (req, res) => {
 app.get('/socket.io/socket.io.js', (req, res) => {
   res.sendFile(__dirname + '/node_modules/socket.io/client-dist/socket.io.js');
 });
-///
 
 app.get("/api",(req , res) => {
   res.setHeader("Content-Type" , "text/html");
   res.end("Hello World");
-});
-  
 });
 
 const io = new Server(server , {
