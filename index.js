@@ -3,7 +3,7 @@ const app = express();
 const { Client , LocalAuth} = require('whatsapp-web.js');
 
 const qrcode  = require('qrcode-terminal');
-const port    = 3001;
+const port    = 3000;
 const http    = require("http");
 const server  = http.createServer(app);
 const { Server } = require('socket.io');
@@ -184,8 +184,8 @@ io.on('connection', (socket) => {
   });
 });
 
-//server.listen(port , ()=> {
-//  console.log("Server listening on the port Reem : " + port);
-//});
+server.listen(port , ()=> {
+  console.log("Server listening on the port Reem : " + port);
+});
 
-module.exports = app;
+//module.exports = app;
