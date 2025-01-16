@@ -14,6 +14,8 @@ app.get("/api",(req , res) => {
   res.end("Hello World");
 });
 
+module.exports = app;
+
 const io = new Server(server , {
   cors:{
     origin: "http://localhost:3000",
