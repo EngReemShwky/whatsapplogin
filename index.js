@@ -7,18 +7,19 @@ const port    = 3001;
 const http    = require("http");
 const server  = http.createServer(app);
 const { Server } = require('socket.io');
+
 app.get("/api",(req , res) => {
-  //const path = "api/item/${v4()}";
   res.setHeader("Content-Type" , "text/html");
-  //res.setHeader("Cash-Control" , "text/html");
   res.end("Hello World");
+});
+  
 });
 
 module.exports = app;
 
 const io = new Server(server , {
   cors:{
-    origin: "http://localhost:3000",
+    origin: "*",
     methods : ["GET" , "POST"],
   }
 });
@@ -177,8 +178,6 @@ io.on('connection', (socket) => {
     closeClientServer(id_connect , socket);
   });
 });
-
-
 
 server.listen(port , ()=> {
   console.log("Server listening on the port Reem : " + port);
